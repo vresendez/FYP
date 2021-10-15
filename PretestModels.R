@@ -28,19 +28,20 @@ issuesmelted <-issuesmelted %>%
                                  ifelse(variable == 'MIP3', 3,
                                         ifelse(variable == 'MIP4', 4,
                                                ifelse(variable == 'MIP5', 5, 0))))))
+
 ####################################################################################
 
 #MULTILEVEL MODEL FOR TESTING THE INFLUENCE OF CHANNELS IN SALIENCE
 #MULTILEVEL LOGISTIC REGRESSION MODEL
 #random intercept model
-model1_1 <- glmer(counts ~ 1 + ( 1 | LoginID), data=issuesmelted,
+model1_1 <- glmer(salience ~ 1 + ( 1 | LoginID), data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model1_1)
 summ(model1_1)
 confint(model1_1) #confidence intervals
 
 #Adding level 1 predictors - Group as first predictor
-model1_2 <- glmer(counts ~ group + (1 | LoginID), data=issuesmelted,
+model1_2 <- glmer(salience ~ group + (1 | LoginID), data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model1_2)
 summ(model1_2, exp = T)
@@ -48,7 +49,7 @@ confint(model1_2) #confidence intervals
 plot(allEffects(model1_2))
 
 #Adding Level 2 - Day as another predictor 
-model1_3 <- glmer(counts ~ group + Day + (1 | LoginID) , data=issuesmelted,
+model1_3 <- glmer(salience ~ group + Day + (1 | LoginID) , data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model1_3)
 summ(model1_3, exp = T)
@@ -56,12 +57,71 @@ confint(model1_3) #confidence intervals
 plot(allEffects(model1_3))
 
 #Testing Day as random effect 
-model1_3_r <- glmer(counts ~ group + (1 | LoginID) + (1|Day) , data=issuesmelted,
+model1_3_r <- glmer(salience ~ group + (1 | LoginID) + (1|Day) , data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model1_3_r)
 summ(model1_3_r, exp = T)
 confint(model1_3_r) #confidence intervals
 plot(allEffects(model1_3_r))
+
+#Adding Saliences as predictors
+model1_3_sal <- glmer(salience ~ group + salienceGA + salienceFB + salienceNOS + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                    family=binomial(link="logit"))
+summary(model1_3_sal)
+summ(model1_3_sal, exp = T)
+confint(model1_3_sal) #confidence intervals
+plot(allEffects(model1_3_sal))
+
+#Changing DV GA
+model1_3_GA <- glmer(salienceGA ~ group + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                     family=binomial(link="logit"))
+summary(model1_3_GA)
+summ(model1_3_GA, exp = T)
+confint(model1_3_GA) #confidence intervals
+plot(allEffects(model1_3_GA))
+
+model1_3_NOS <- glmer(salienceNOS ~ group + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                     family=binomial(link="logit"))
+summary(model1_3_NOS)
+summ(model1_3_NOS, exp = T)
+confint(model1_3_NOS) #confidence intervals
+plot(allEffects(model1_3_NOS))
+
+model1_3_FB <- glmer(salienceFB ~ GA + FB + NOS + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                      family=binomial(link="logit"))
+summary(model1_3_FB)
+summ(model1_3_FB, exp = T)
+confint(model1_3_FB) #confidence intervals
+plot(allEffects(model1_3_FB))
+
+model1_3_NOS <- glmer(salienceNOS ~ GA + FB + NOS + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                     family=binomial(link="logit"))
+summary(model1_3_NOS)
+summ(model1_3_NOS, exp = T)
+confint(model1_3_NOS) #confidence intervals
+plot(allEffects(model1_3_NOS))
+
+model1_3_GA <- glmer(salienceGA ~ GA + FB + NOS + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                      family=binomial(link="logit"))
+summary(model1_3_GA)
+summ(model1_3_GA, exp = T)
+confint(model1_3_GA) #confidence intervals
+plot(allEffects(model1_3_GA))
+
+model1_3_Salience_Sal <- glmer(salience ~ salienceGA + salienceFB + salienceNOS + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                     family=binomial(link="logit"))
+summary(model1_3_Salience)
+summ(model1_3_Salience, exp = T)
+confint(model1_3_Salience) #confidence intervals
+plot(allEffects(model1_3_Salience))
+
+model1_3_Salience_Groups <- glmer(salience ~ FB + NOS + GA + (1 | LoginID) + (1|Day) , data=issuesmelted,
+                           family=binomial(link="logit"))
+summary(model1_3_Salience_Groups)
+summ(model1_3_Salience_Groups, exp = T)
+confint(model1_3_Salience_Groups) #confidence intervals
+plot(allEffects(model1_3_Salience_Groups))
+
 
 
 #calculate AIC for model1_3 & model1_3_r to compare if it perfoms better
@@ -102,37 +162,40 @@ plot(allEffects(model2_2_1, ))
 
 
 #Adding level 2 predictors
-model2_2_3 <- lmer(ranking ~ group + counts + (1 | LoginID) , data=issuesmelted)
+model2_2_3 <- lmer(ranking ~ group + salience + (1 | LoginID) , data=issuesmelted)
 summary(model2_2_3)
 summ(model2_2_ran, exp = T)
 confint(model2_2_3) #confidence intervals
 plot(allEffects(model2_2_3))
 
 #Adding random slope for importance the salience of issues might change per group
-model2_3_r <- lmer(ranking ~ group + counts + (counts | group) + (1 | LoginID) + (1 | Day), data=issuesmelted)
+model2_3_r <- lmer(ranking ~ group + salience + (salience | group) + (1 | LoginID) + (1 | Day), data=issuesmelted)
 summary(model2_3_r)
 summ(model2_3_r, exp = T)
 confint(model2_3_r) #confidence intervals
 plot(allEffects(model2_3_r))
 
-
 #Probing interactions
 simple_slopes(model2_3_r)
-graph_model(model2_3_r, y=ranking, x=group, lines=counts)
+graph_model(model2_3_r, y=ranking, x=group, lines=salience)
 #calculate AIC for model2_2_3 & model2_3_r to compare if it perform better
 
-
 #Adding random slope for importance the salience of issues might change per group and adding interaction effects and different predictors
-model2_4_r <- lmer(ranking ~ group + counts + group*counts + (counts | group) + (1 | LoginID) + (1 | Day), data=issuesmelted)
+model2_4_r <- lmer(ranking ~ group + salience + group*salience + (salience | group) + (1 | LoginID) + (1 | Day), data=issuesmelted)
 summary(model2_4_r)
 summ(model2_4_r, exp = T)
 confint(model2_4_r) #confidence intervals
 plot(allEffects(model2_4_r))
 
-
+#adding different salience as predictors
+model2_4_r_sals <- lmer(ranking ~ group + salience + group*salience + salienceGA + salienceFB + salienceNOS + (salience | group) + (1 | LoginID) + (1 | Day), data=issuesmelted)
+summary(model2_4_r_sals)
+summ(model2_4_r_sals, exp = T)
+confint(model2_4_r_sals) #confidence intervals
+plot(allEffects(model2_4_r_sals))
 
 #Adding level 3 predictors
-model2_3 <- glmer(ranking ~ counts + group + day + (1 | LoginID), data=issuesmelted,
+model2_3 <- glmer(ranking ~ salience + group + day + (1 | LoginID), data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model2_3)
 summ(model2_3, exp = T)
@@ -140,12 +203,19 @@ confint(model2_3) #confidence intervals
 plot(allEffects(model2_3))
 
 #Adding level 3 predictors
-model2_3 <- glmer(ranking ~ counts + group + day + (1 | LoginID), data=issuesmelted,
+model2_3 <- glmer(ranking ~ salience + group + day + (1 | LoginID), data=issuesmelted,
                   family=binomial(link="logit"))
 summary(model2_3)
 summ(model2_3, exp = T)
 confint(model2_3) #confidence intervals
 plot(allEffects(model2_3))
+
+model2_3_sal <- glmer(ranking ~ group + salience + salienceGA + Day + (1 | LoginID), data=issuesmelted,
+                  family=binomial(link="logit"))
+summary(model2_3_sal)
+summ(model2_3_sal, exp = T)
+confint(model2_3_sal) #confidence intervals
+plot(allEffects(model2_3_sal))
 
 ####################################################################
 ################ COMPARING MODEL PERFOMANCES ######################
@@ -172,6 +242,7 @@ p1
 p2<-plot_model(model2_4_r, show.values = TRUE, value.offset = .3)
 p2
 ################ TAB MODELS #########################
+ModelsSalience <- tab_model(model1_3, model1_3_r)
 ModelsSalience <- tab_model(model1_3, model1_3_r)
 ModelsImportance <- tab_model(model2_2_3, model2_4_r)
 write.table(ModelsSalience, file = "ModelsSalience.txt", sep = ",", quote = FALSE, row.names = F)
